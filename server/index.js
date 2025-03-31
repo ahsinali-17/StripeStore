@@ -11,7 +11,12 @@ const corsOptions = {
   credentials: true, 
 };
 
-app.use(cors(corsOptions)); 
+app.use(cors(corsOptions));
+
+app.get('/checkout', (req, res) => {
+    res.send('Hello World');
+});
+
 app.post('/checkout', async (req, res) => {
 
    try{
