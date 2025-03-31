@@ -11,7 +11,7 @@ const corsOptions = {
   credentials: true, 
 };
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.get('/checkout', (req, res) => {
     res.send('Hello World');
