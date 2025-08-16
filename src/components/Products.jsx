@@ -34,21 +34,11 @@ const Products = () => {
         await emptyCart(cart[0].user);
         dispatch(setCart([]));
         dispatch(setLoad(false));
-        toast.success("Payment Successful...", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        });
         setSearchparams("");
       }
 
       if (searchParams.get("cancelled")) {
-        toast.success("Payment Failed...", {
+        toast.error("Payment Failed...", {
           position: "top-right",
           autoClose: 5000,
           hideProgressBar: false,
