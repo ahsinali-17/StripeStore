@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCart, addItem } from "../redux-toolkit/slices/CartSlice";
-import { fetchProducts,incPage, decPage } from "../redux-toolkit/slices/ProductSlice";
-import { displayProducts } from "../redux-toolkit/selectors/cartSelectors";
-import { setLoad } from "../redux-toolkit/slices/ProductSlice";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useFirebase } from "../firebase/Firebase";
+import {products} from "../products.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -17,26 +15,22 @@ const Products = () => {
   const [searchParams, setSearchparams] = useSearchParams();
   const [loading, setLoading] = useState(null);
   const cart = useSelector((state) => state.cart);
-  const pageProducts = useSelector(displayProducts);
-  const page = useSelector((state) => state.products.page);
-  const payLoading = useSelector((state) => state.products.loading);
-  const fetchData = async () => {
-    const response = await fetch("https://fakestoreapi.com/products");
-    const data = await response.json();
-    dispatch(fetchProducts(data));
-  };
+  const [page, setPage] = useState(0);
+  const itemsPerPage = 6;
+  // Import products directly
+  const [allProducts] = useState(products);
+  const pageProducts = allProducts.slice(page * itemsPerPage, page * itemsPerPage + itemsPerPage);
+
 
   useEffect(() => {
-    if (pageProducts?.length === 0) fetchData();
     const paySuccess = async () => {
       if (searchParams.get("success")) {
-        dispatch(setLoad(true));
+        setLoading("cart");
         await emptyCart(cart[0].user);
         dispatch(setCart([]));
-        dispatch(setLoad(false));
+        setLoading(null);
         setSearchparams("");
       }
-
       if (searchParams.get("cancelled")) {
         toast.error("Payment Failed...", {
           position: "top-right",
@@ -54,7 +48,7 @@ const Products = () => {
     paySuccess();
   }, []);
 
-  if (payLoading) return <div className="text-lg text-center">Loading...</div>;
+  if (loading === "cart") return <div className="text-lg text-center">Loading...</div>
 
   return (
     <>
@@ -71,9 +65,9 @@ const Products = () => {
         theme="dark"
       />
       <div className="products w-[90vw] m-auto flex flex-wrap gap-6 justify-center mt-3">
-        {pageProducts?.length === 0
+        {pageProducts.length === 0
           ? "loading..."
-          : pageProducts?.map((item) => {
+          : pageProducts.map((item) => {
               const added = cart?.some((product) => product.id === item.id);
               return (
                 <div
@@ -111,22 +105,22 @@ const Products = () => {
                 </div>
               );
             })}
-            <div className="buttons flex justify-around w-full my-3">
-              <button
-                className="bg-blue-500 text-md text-white p-2 rounded-2xl w-24 disabled:bg-gray-500"
-                disabled={page === 0}
-                onClick={() => dispatch(decPage())}
-              >
-                Prev
-              </button>
-              <button
-                className="bg-blue-500 text-md text-white p-2 rounded-2xl w-24 disabled:bg-gray-500"
-                onClick={() => dispatch(incPage())}
-                disabled={page*6>=pageProducts.length}
-              >
-                Next
-              </button>
-            </div>
+        <div className="buttons flex justify-around w-full my-3">
+          <button
+            className="bg-blue-500 text-md text-white p-2 rounded-2xl w-24 disabled:bg-gray-500"
+            disabled={page === 0}
+            onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+          >
+            Prev
+          </button>
+          <button
+            className="bg-blue-500 text-md text-white p-2 rounded-2xl w-24 disabled:bg-gray-500"
+            onClick={() => setPage((prev) => (prev + 1) * itemsPerPage < allProducts.length ? prev + 1 : prev)}
+            disabled={(page + 1) * itemsPerPage >= allProducts.length}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </>
   );

@@ -7,7 +7,7 @@ import { setCart } from "../redux-toolkit/slices/CartSlice";
 export default function Navbar() {
   const { user, logout } = useFirebase();
   const cartCount = useSelector((state) => state.cart.length); 
-  const loading = useSelector((state) => state.products.loading);
+  const loading = cartCount != undefined ? false : true;
   const dispatch = useDispatch();
   
   return (
@@ -40,7 +40,7 @@ export default function Navbar() {
               className="bg-red-500 flex items-center gap-3 py-1 px-2 rounded-md w-32 h-fit"
             >
               <img
-                src={user.photoURL?user.photoURL:"src/assets/user.png"}
+                src={user.photoURL?user.photoURL:"/assets/user.png"}
                 alt="user"
                 className="w-8 h-8 rounded-full"
               />

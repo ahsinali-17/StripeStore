@@ -53,6 +53,8 @@ const Cart = () => {
   const makePayment = async () => {
     setPayloading(true)
     const stripe = await loadStripe(`${import.meta.env.VITE_STRIPE_PUBLIC_KEY}`);
+    
+    try{
     const response = await fetch(`${import.meta.env.VITE_URL}/checkout`, {
       method: "POST",
       headers: {
@@ -61,16 +63,15 @@ const Cart = () => {
       body: JSON.stringify(reduxCart),
     });
     const session = await response.json();
-    
-     if (session.error || response.status !== 200) {
-      console.error(session.error);
-      setPayloading(false);
-    }
     setPayloading(false);
 
-    await stripe.redirectToCheckout({
+     await stripe.redirectToCheckout({
       sessionId: session.id,
     });
+    }catch(err){
+      setPayloading(false);
+      console.error(err);
+    }
   };
 
   if(user && reduxCart.length && reduxCart[0].user !== user?.uid) return <div className="text-center mt-3">Loading...</div>
