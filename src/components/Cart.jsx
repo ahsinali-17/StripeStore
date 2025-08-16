@@ -61,15 +61,16 @@ const Cart = () => {
       body: JSON.stringify(reduxCart),
     });
     const session = await response.json();
+    
+     if (session.error || response.status !== 200) {
+      console.error(session.error);
+      setPayloading(false);
+    }
+    setPayloading(false);
 
     const result = await stripe.redirectToCheckout({
       sessionId: session.id,
     });
-
-    if (session.error) {
-      console.error(result.error.message);
-    }
-    setPayloading(false);
   };
 
   if(user && reduxCart.length && reduxCart[0].user !== user?.uid) return <div className="text-center mt-3">Loading...</div>
