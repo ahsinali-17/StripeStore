@@ -68,7 +68,7 @@ const Cart = () => {
     }
     setPayloading(false);
 
-    const result = await stripe.redirectToCheckout({
+    await stripe.redirectToCheckout({
       sessionId: session.id,
     });
   };
